@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import or_
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import datetime
@@ -7,6 +9,7 @@ from functools import wraps
 from config import SECRET_KEY
 
 app = Flask(__name__)
+CORS(app)
 app.config['SECRET_KEY'] = SECRET_KEY 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://admin:password@unilate-test.cl020ce0qv5c.eu-north-1.rds.amazonaws.com/unilate'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -195,20 +198,21 @@ def get_current_delay(doctor_id):
     return jsonify(current_delay), 200
 
 
+# Search endpoint
 @app.route('/doctors', methods=['GET'])
 def search_doctors():
-    name = request.args.get('name')
-    city = request.args.get('city')
-    specialty = request.args.get('specialty')
+    search_term = request.args.get('search')
 
-    query = Doctor.query
-
-    if name:
-        query = query.filter(Doctor.Name.ilike(f'%{name}%'))
-    if city:
-        query = query.filter(Doctor.City.ilike(f'%{city}%'))
-    if specialty:
-        query = query.filter(Doctor.Specialty.ilike(f'%{specialty}%'))
+    if search_term:
+        query = Doctor.query.filter(
+            or_(
+                Doctor.Name.ilike(f'%{search_term}%'),
+                Doctor.City.ilike(f'%{search_term}%'),
+                Doctor.Specialty.ilike(f'%{search_term}%')
+            )
+        )
+    else:
+        query = Doctor.query
 
     doctors = query.all()
     doctors_data = [{

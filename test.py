@@ -104,14 +104,15 @@ def test_get_current_delay():
 
 def test_search_doctors():
     url = 'http://10.50.2.238:8012/doctors'
-    params = {
-        'name': '',
-        'city': 'Sydney',
-        'specialty': ''
-    }
+    
+    # Example search terms
+    search_terms = ['John', 'London', 'Gyneco', 'Jane']
 
-    response = requests.get(url, params=params)
-    print(response.json())
+    for term in search_terms:
+        response = requests.get(url, params={'search': term})
+        print(f"Search for '{term}':")
+        print(response.json())
+        print("-----")
 
 def test_get_all_doctors():
     url = 'http://10.50.2.238:8012/doctors/all'
@@ -119,5 +120,5 @@ def test_get_all_doctors():
     response = requests.get(url)
     print(response.json())
 
-test_get_all_doctors()
+test_search_doctors()
 
