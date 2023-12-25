@@ -223,6 +223,22 @@ def search_doctors():
 
     return jsonify({'doctors': doctors_data})
 
+# Return all the doctors
+@app.route('/doctors/all', methods=['GET'])
+def get_all_doctors():
+    doctors = Doctor.query.all()
+    doctors_data = [{
+        'id': doctor.DoctorID,
+        'name': doctor.Name,
+        'specialty': doctor.Specialty,
+        'city': doctor.City,
+        'email': doctor.Email,
+        'phone_number': doctor.PhoneNumber,
+        'hospital_name': doctor.HospitalName
+    } for doctor in doctors]
+
+    return jsonify({'doctors': doctors_data})
+
 
 # Health Check endpoint
 @app.route('/', methods=['GET'])

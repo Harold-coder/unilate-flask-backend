@@ -4,12 +4,12 @@ from datetime import datetime, timedelta
 def test_register_doctor():
     url = 'http://10.50.2.238:8012/doctors/register'
     data = {
-        'name': 'Jane Smith',
-        'specialty': 'Pediatrics',
-        'city': 'Springfield',
-        'email': 'janesmith@example.com',  # Ensure this email is unique and not already registered
-        'phone_number': '9876543210',
-        'hospital_name': 'Springfield General Hospital',
+        'name': 'John Doe',
+        'specialty': 'Gyneco',
+        'city': 'Wavre',
+        'email': 'johndoe@example.com',  # Ensure this email is unique and not already registered
+        'phone_number': '2128146903',
+        'hospital_name': 'Clinique Saint Lambert',
         'password': 'test123'  # Provide a new password for registration
     }
 
@@ -112,4 +112,12 @@ def test_search_doctors():
 
     response = requests.get(url, params=params)
     print(response.json())
+
+def test_get_all_doctors():
+    url = 'http://10.50.2.238:8012/doctors/all'
+
+    response = requests.get(url)
+    print(response.json())
+
+test_get_all_doctors()
 
