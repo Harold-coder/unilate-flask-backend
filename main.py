@@ -102,7 +102,7 @@ def login_doctor():
 
     if doctor.check_password(auth.get('password')):
         token = jwt.encode({'doctor_id': doctor.DoctorID, 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)}, app.config['SECRET_KEY'], algorithm="HS256")
-        return jsonify({'token': token})
+        return jsonify({'token': token, 'doctor_id': doctor.DoctorID})
 
     return jsonify({'message': 'Could not verify', 'WWW-Authenticate': 'Basic realm="Login required!"'}), 401
 
@@ -149,6 +149,26 @@ def update_doctor(current_user, doctor_id):
 
     return jsonify({'message': 'Doctor profile updated successfully'}), 200
 
+@app.route('/doctors/update_password/<int:doctor_id>', methods=['PUT'])
+@token_required
+def update_doctor_password(current_user, doctor_id):
+    if current_user.DoctorID != doctor_id:
+        return jsonify({'message': 'Permission denied'}), 403
+
+    data = request.get_json()
+    new_password = data.get('password')
+    if not new_password:
+        return jsonify({'message': 'No new password provided'}), 400
+
+    doctor = Doctor.query.filter_by(DoctorID=doctor_id).first()
+    if doctor:
+        doctor.set_password(new_password)
+        db.session.commit()
+        return jsonify({'message': 'Password updated successfully'}), 200
+    else:
+        return jsonify({'message': 'Doctor not found'}), 404
+
+
 @app.route('/delays/<int:doctor_id>', methods=['PUT'])
 @token_required
 def update_delay(current_user, doctor_id):
@@ -178,23 +198,22 @@ def update_delay(current_user, doctor_id):
 
 @app.route('/delays/<int:doctor_id>', methods=['GET'])
 def get_current_delay(doctor_id):
-    # Query the database for the delay associated with the doctor_id
     delay = Delay.query.filter_by(DoctorID=doctor_id).first()
-
-    # If no delay entry is found for the doctor, return a 404 error
     if not delay:
         return jsonify({'message': 'No delay entry found for this doctor'}), 404
 
-    # Prepare the delay information to return
+    # Convert string to datetime object before using isoformat()
+    start_timestamp = datetime.datetime.fromisoformat(delay.StartTimestamp)
+    end_timestamp = datetime.datetime.fromisoformat(delay.EndTimestamp)
+    announcement_timestamp = datetime.datetime.fromisoformat(delay.AnnouncementTimestamp)
+
     current_delay = {
         'doctor_id': delay.DoctorID,
         'delay_duration': delay.DelayDuration,
-        'start_timestamp': delay.StartTimestamp.isoformat() + 'Z',  # Assuming UTC timezone
-        'end_timestamp': delay.EndTimestamp.isoformat() + 'Z',  # Assuming UTC timezone
-        'announcement_timestamp': delay.AnnouncementTimestamp.isoformat() + 'Z'  # Assuming UTC timezone
+        'start_timestamp': start_timestamp.isoformat() + 'Z',
+        'end_timestamp': end_timestamp.isoformat() + 'Z',
+        'announcement_timestamp': announcement_timestamp.isoformat() + 'Z'
     }
-
-    # Return the delay information in the response
     return jsonify(current_delay), 200
 
 

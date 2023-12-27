@@ -53,7 +53,6 @@ def test_update_doctor():
         'name': 'Jane Smith Updated',
         'specialty': 'Pediatrics',
         'city': 'New Springfield',
-        # You can add other fields to update as needed
     }
     
     # Then, attempt to update the doctor's profile
