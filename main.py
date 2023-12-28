@@ -176,24 +176,18 @@ def update_delay(current_user, doctor_id):
     if current_user.DoctorID != doctor_id:
         return jsonify({'message': 'Permission denied'}), 403
 
-    # Get the delay update data from the request
     data = request.get_json()
-    
-    # Find the delay entry for the doctor
     delay = Delay.query.filter_by(DoctorID=doctor_id).first()
 
     if not delay:
         return jsonify({'message': 'Delay entry not found for the doctor'}), 404
 
-    # Update the delay entry with the new information
     delay.DelayDuration = data.get('delay_duration', delay.DelayDuration)
     delay.StartTimestamp = data.get('start_timestamp', delay.StartTimestamp)
     delay.EndTimestamp = data.get('end_timestamp', delay.EndTimestamp)
     delay.AnnouncementTimestamp = data.get('announcement_timestamp', delay.AnnouncementTimestamp)
-    
-    # Commit the changes to the database
+
     db.session.commit()
-    
     return jsonify({'message': 'Delay updated successfully'}), 200
 
 @app.route('/delays/<int:doctor_id>', methods=['GET'])
@@ -202,19 +196,15 @@ def get_current_delay(doctor_id):
     if not delay:
         return jsonify({'message': 'No delay entry found for this doctor'}), 404
 
-    # Convert string to datetime object before using isoformat()
-    start_timestamp = datetime.datetime.fromisoformat(delay.StartTimestamp)
-    end_timestamp = datetime.datetime.fromisoformat(delay.EndTimestamp)
-    announcement_timestamp = datetime.datetime.fromisoformat(delay.AnnouncementTimestamp)
-
     current_delay = {
         'doctor_id': delay.DoctorID,
         'delay_duration': delay.DelayDuration,
-        'start_timestamp': start_timestamp.isoformat() + 'Z',
-        'end_timestamp': end_timestamp.isoformat() + 'Z',
-        'announcement_timestamp': announcement_timestamp.isoformat() + 'Z'
+        'start_timestamp': delay.StartTimestamp,
+        'end_timestamp': delay.EndTimestamp,
+        'announcement_timestamp': delay.AnnouncementTimestamp
     }
     return jsonify(current_delay), 200
+
 
 
 # Search endpoint
