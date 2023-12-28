@@ -9,7 +9,7 @@ from functools import wraps
 from config import SECRET_KEY
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/doctors/*": {"origins": "http://localhost:3000"}})
 app.config['SECRET_KEY'] = SECRET_KEY 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://admin:password@unilate-test.cl020ce0qv5c.eu-north-1.rds.amazonaws.com/unilate'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
