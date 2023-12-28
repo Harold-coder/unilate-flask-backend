@@ -1,6 +1,6 @@
 Flask==2.1.2
 Flask-SQLAlchemy==2.5.1
-SQLAlchemy==2.0.23
+SQLAlchemy==1.4.1
 Werkzeug==2.1.1
 PyMySQL==1.0.2
 PyJWT==2.1.0
